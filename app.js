@@ -9,6 +9,7 @@ const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { celebrate, Joi } = require('celebrate');
 
 const app = express();
 const limiter = rateLimit({
@@ -32,8 +33,27 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   autoIndex: true,
 });
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().uri(),
+  }),
+}), createUser);
 app.use(auth);
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
@@ -41,9 +61,6 @@ app.use('/', require('./routes/cards'));
 app.use(requestLogger);
 app.use(errors());
 
-/*app.use((req, res) => {
-  res.status(404).send({ message: 'Not found' });
-});*/
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

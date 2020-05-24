@@ -1,53 +1,57 @@
 const Card = require('../models/card');
+const NotFoundError = require('../errors/not-found-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Cards not found' }));
+    .catch(next);
 };
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Card not create' }));
+    .catch(next);
 };
-module.exports.delCardById = (req, res) => {
+module.exports.delCardById = (req, res, next) => {
   Card.findById(req.params.id)
     .then((card) => {
       if (!card) {
-        return Promise.reject(new Error('Not found card id'));
+        throw new NotFoundError('Not found card id');
       }
       const { owner } = card;
       return owner;
     })
     .then((owner) => {
       if (owner.toString() !== req.user._id) {
-        return Promise.reject(new Error('Not enough rights delete this card'));
+        throw new ForbiddenError('Not enough rights delete this card');
       }
       return Card.findByIdAndRemove(req.params.id)
         .then((card) => {
           res.send({ data: card });
         })
-        .catch(() => Promise.reject(new Error('an error occurred')));
+        .catch(() => {
+          throw new NotFoundError('an error occurred');
+        });
     })
-    .catch((err) => res.status(404).send({ message: err.message }));
+    .catch(next);
 };
 
-module.exports.addCardLike = (req, res) => {
+module.exports.addCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail(() => {
-      throw new Error();
+      throw new NotFoundError('Card not id');
     })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Card not id' }));
+    .catch(next);
 };
 
-module.exports.delCardLike = (req, res) => {
+module.exports.delCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => {
-      throw new Error();
+      throw new NotFoundError('Card not id');
     })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Card not id' }));
+    .catch(next);
 };

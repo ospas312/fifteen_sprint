@@ -13,8 +13,6 @@ module.exports = (req, res, next) => {
     const err = new Error('Необходима авторизация');
     err.statusCode = 401;
     next(err);
-
-    /*return res.status(401).send({ message: 'Необходима авторизация' });*/
   }
   req.user = payload;
   return next();
