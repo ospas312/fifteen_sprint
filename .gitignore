@@ -5,7 +5,7 @@ npm-debug.log*
 
 # Dependency directory
 node_modules
-
+dist
 # Optional npm cache directory
 .npm
 
@@ -13,4 +13,5 @@ node_modules
 .DS_Store
 .idea
 .vs
-.env
+JWT_SECRET.env
+.env1

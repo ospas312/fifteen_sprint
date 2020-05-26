@@ -1,1 +1,14 @@
 /public/**
+
+/build/**
+/coverage/**
+/docs/**
+/jsdoc/**
+/templates/**
+/tests/bench/**
+/tests/fixtures/**
+/tests/performance/**
+/dist/**
+/node_modules/**
+test.js
+!.eslintrc.js
