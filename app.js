@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { celebrate, Joi, errors } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -7,9 +8,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { celebrate, Joi } = require('celebrate');
 const { PORT, DATABASE_URL, mongooseConfig } = require('./config');
 
 const app = express();
@@ -61,6 +60,8 @@ app.use(errorLogger);
 app.use(errors());
 
 app.use(errors());
+
+
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });

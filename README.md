@@ -11,8 +11,8 @@
 
 
 [ссылка на проект](https://github.com/ospas312/fifteen_sprint)
-[http://84.201.134.240](http://84.201.134.240)
-[ссылка на сайт](www.perpetuum.space)
-[API](api.perpetuum.space)
+ip проекта - 84.201.134.240
+домен проекта - www.perpetuum.space
+API - api.perpetuum.space
 
 *Для запуска локально, скачайте проект, распакуйте в необходимую директорию, установите командой 'npm install' и запустите командой 'npm run start'.*

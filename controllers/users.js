@@ -9,12 +9,19 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar,
     email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, email, password: hash, about, avatar,
-    }))
-    .then((user) => User.findOne({ _id: user._id }))
-    .then((user) => res.send({ data: user }))
+  User.findOne({ email })
+    .then((users) => {
+      if (users) {
+        throw new NotFoundError('Email уже используется');
+      }
+      bcrypt.hash(password, 10)
+        .then((hash) => User.create({
+          name, email, password: hash, about, avatar,
+        }))
+        .then((user) => User.findOne({ _id: user._id }))
+        .then((user) => res.send({ data: user }))
+        .catch(next);
+    })
     .catch(next);
 };
 
